@@ -50,8 +50,6 @@ The workflow identifies candidate sORFs from transcriptomic data and applies mul
     - CDS-overlapping ORFs  
     - Short/invalid transcripts  
 
-- Output:
-  - `stage1_novel_sorfs.csv`
 
 ---
 
@@ -63,8 +61,6 @@ The workflow identifies candidate sORFs from transcriptomic data and applies mul
 - Apply stricter cutoff:
   - Minimum length ≥15 aa  
 
-- Output:
-  - `stage1_cleaned_sorfs.csv`
 
 ---
 
