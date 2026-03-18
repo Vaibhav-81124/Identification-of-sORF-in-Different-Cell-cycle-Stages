@@ -183,5 +183,3 @@ The workflow identifies candidate sORFs from transcriptomic data and applies mul
 
 ## Conclusion
 This pipeline enables systematic identification and validation of **novel translated sORFs**, revealing previously unannotated coding potential in the human transcriptome. The integration of ribosome profiling and transcriptomics provides strong evidence for **functional microproteins** and their potential biological roles.
-
-## Repository Structure
