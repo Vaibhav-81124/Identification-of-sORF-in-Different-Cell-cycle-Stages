@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Base project directory
-BASE = "/home/vaibhav11/multiomics_project"
+BASE = "Project Directory"
 
 # ─── FILE PATHS ─────────────────────────────────────────────
 
