@@ -25,9 +25,8 @@ mkdir -p "${RESULTS}/01_qc/rnaseq_trimmed"
 mkdir -p "${RESULTS}/02_trimmed"
 mkdir -p "${RESULTS}/03_aligned_rnaseq"
 
-echo "===================================================="
+
 echo " RNA-seq Pipeline Starting: $(date)"
-echo "===================================================="
 
 # ─── STEP 1: FastQC RAW ───────────────────────────────────────────────────────
 RAW_QC="${RESULTS}/01_qc/rnaseq_raw/$(basename ${RNA_FQ%.gz})_fastqc.zip"
@@ -114,13 +113,11 @@ if [ ! -f "$SORTED_BAM" ]; then
     mv "${RESULTS}/03_aligned_rnaseq/${SAMPLE_NAME}_Aligned.sortedByCoord.out.bam" \
        "$SORTED_BAM"
 
-    echo "✓ Alignment complete"
+    echo " Alignment complete"
 
 else
-    echo "✓ STEP 4 skipped (BAM exists)"
+    echo " STEP 4 skipped (BAM exists)"
 fi
 
-
-echo "===================================================="
 echo " PIPELINE COMPLETE"
-echo "===================================================="
+
