@@ -2,7 +2,7 @@ import pandas as pd
 import ast
 
 # Load sORF table
-df = pd.read_csv("stage1_cleaned_sorfs.csv")
+df = pd.read_csv("sorf.csv")
 
 bed_lines = []
 
