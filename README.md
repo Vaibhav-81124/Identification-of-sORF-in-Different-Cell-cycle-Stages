@@ -1,181 +1,122 @@
-# Discovery and Characterization of Novel sORFs Using Ribosome Profiling and RNA-seq in HeLa Cells
+# sORF Discovery Framework
 
-**Undergraduate Thesis Project (B.E. Biotechnology)**  
-Author: Vaibhav D  
+**Author:** Vaibhav D  
+**Project Type:** Undergraduate Thesis (B.E. Biotechnology)
 
 ---
 
-## Overview
-This project focuses on the **discovery and validation of novel small open reading frames (sORFs)** using an integrative pipeline combining **RNA-seq and Ribo-seq data** across different stages (Asynchronous,M, and S phase) of the cell cycle in HeLa cells.
+## What this project does
 
-The workflow identifies candidate sORFs from transcriptomic data and applies multiple layers of filtering, translation evidence, and functional annotation to obtain **high-confidence translated microproteins**.
+This project is a lightweight, reproducible framework for discovering and validating novel small open reading frames (sORFs) using RNA-seq and Ribo-seq data.
+
+It standardizes a multi-step workflow—from data preprocessing to translation validation and filtering—into a structured system that can be reused across datasets instead of running one-off analyses.
+
+---
+
+## Why I built this
+
+sORF discovery workflows are often fragmented and difficult to reproduce. Small variations in preprocessing, filtering, or parameter selection can lead to inconsistent results across replicates and datasets.
+
+This framework was built to:
+- Standardize the end-to-end workflow  
+- Reduce variability across datasets  
+- Enable reproducible and consistent outputs  
+- Provide a reusable system instead of ad-hoc scripts  
 
 ---
 
 ## Dataset
-- Source: PRJNA316618  
-- Data type:
-  - RNA-seq (transcript abundance)
-  - Ribo-seq (translation evidence)  
-- Conditions: Multiple cell-cycle stages (with replicates)  
-- Reference:
-  - Genome: GRCh38  
-  - Annotation: GTF (Ensembl)  
+
+- **Source:** PRJNA316618  
+- **Data Types:** RNA-seq, Ribo-seq  
+- **Conditions:** Multiple cell-cycle stages (Asynchronous, M, S phase) with replicates  
+- **Reference Genome:** GRCh38  
+- **Annotation:** Ensembl GTF  
 
 ---
 
-## Objectives
-- Identify **novel sORFs** from transcript sequences  
-- Validate translation using **ribosome profiling (Ribo-seq)**  
-- Filter high-confidence **microproteins (≤100 aa)**  
-- Analyze **reading frame periodicity**  
-- Annotate genomic context and host genes  
-- Perform downstream **functional and network analysis**
+## Workflow Overview
 
----
+### 1. sORF Discovery
+- Parse transcript sequences and exon structures  
+- Map transcript coordinates to genome  
+- Identify ORFs:  
+  - Start codon: ATG  
+  - Length: 10–100 aa (refined ≥15 aa)  
+- Remove CDS-overlapping ORFs  
 
-## Pipeline Overview
+### 2. Filtering & Cleaning
+- Remove duplicate peptides and loci  
+- Remove nested ORFs (retain longest)  
+- Apply minimum length cutoff (≥15 aa)  
 
-### Phase 1: sORF Discovery
-- Input:
-  - Transcript FASTA (cDNA)
-  - GTF annotation  
-- Steps:
-  - Parse transcripts and exon structure  
-  - Map transcript coordinates to genome  
-  - Scan for ORFs:
-    - Start codon: ATG  
-    - Length: 10–100 aa (later refined ≥15 aa)  
-  - Remove:
-    - CDS-overlapping ORFs  
-    - Short/invalid transcripts  
+### 3. RNA-seq Processing
+**Tools:** FastQC, Cutadapt, STAR  
+- Quality control and trimming  
+- Alignment to genome  
+- Generate sorted BAM files  
 
+### 4. Ribo-seq Processing
+**Tools:** Cutadapt, SortMeRNA, STAR, Samtools  
+- Adapter trimming and rRNA removal  
+- Alignment and filtering (RPFs: 26–34 nt)  
+- P-site assignment  
 
----
+### 5. Translation Evidence
+- Convert sORFs to BED format  
+- Intersect with P-site data (BEDTools)  
+- Aggregate ribosome counts  
+- Apply threshold (≥10 reads)  
 
-### Phase 1B: sORF Filtering & Cleaning
-- Remove:
-  - Duplicate peptides  
-  - Duplicate genomic loci  
-  - Nested ORFs (retain longest per region)  
-- Apply stricter cutoff:
-  - Minimum length ≥15 aa  
-
-
----
-
-### Phase 2: RNA-seq Processing
-- Tools:
-  - FastQC  
-  - Cutadapt  
-  - STAR  
-
-- Steps:
-  - Quality control  
-  - Adapter trimming  
-  - Alignment to genome  
-  - Generate sorted BAM files  
-
-- Output:
-  - Aligned RNA-seq BAM files  
-
----
-
-### Phase 3: Ribo-seq Processing
-- Tools:
-  - Cutadapt  
-  - SortMeRNA  
-  - STAR  
-  - Samtools  
-
-- Steps:
-  - Adapter trimming  
-  - rRNA removal  
-  - Alignment  
-  - Filter ribosome-protected fragments (RPFs: 26–34 nt)  
-  - P-site assignment  
-
-- Output:
-  - P-site BED files representing translation events  
-
----
-
-### Phase 4: Translation Evidence & Quantification
-
-#### Ribo-seq Counts
-- Convert sORFs → BED format  
-- Intersect with P-sites (BEDTools)  
-- Aggregate counts per ORF  
-
-#### Filtering Pipeline
-- Remove:
-  - CDS-overlapping ORFs  
-  - Protein-coding gene overlaps  
-- Apply translation threshold:
-  - Minimum ribo reads ≥10  
-
-#### Microprotein Selection
-- Define:
-  - Microproteins ≤100 aa  
-
-- Outputs:
-  - High-confidence translated ORFs  
-  - High-confidence microproteins  
-
----
-
-### Phase 5: Periodicity Analysis
-- Evaluate 3-nt periodicity of ribosome footprints  
-- Compute frame distribution (frame0, frame1, frame2)  
-- Apply thresholds:
+### 6. Periodicity Analysis
+- Evaluate 3-nt periodicity  
+- Compute frame distribution  
+- Apply thresholds:  
   - Minimum reads ≥8  
   - Frame0 fraction ≥0.55  
 
-- Output:
-  - `high_confidence_translated_orfs`
-
----
-
-### Phase 6: RNA Expression Quantification
-- Convert sORFs → GTF  
-- Use `featureCounts` for RNA expression  
+### 7. Expression Integration
+- Quantify RNA expression (featureCounts)  
 - Integrate RNA + Ribo signals  
 
----
-
-### Phase 7: Gene Annotation & Functional Analysis
-- Identify **host genes** via genomic overlap  
-- Classify ORFs:
-  - Intragenic  
-  - Intergenic  
-  - Pseudogene-associated  
-  - lncRNA-associated  
-
-- Downstream analysis:
-  - Pathway enrichment (g:Profiler)  
-  - Protein interaction networks (STRING)  
+### 8. Annotation & Functional Analysis
+- Identify host genes  
+- Classify ORFs (intragenic, intergenic, etc.)  
+- Perform enrichment analysis (g:Profiler)  
+- Analyze protein interactions (STRING)  
 
 ---
 
-## Key Features of the Pipeline
-- Transcript-to-genome coordinate mapping  
+## Key Features
+
+- End-to-end workflow from discovery to validation  
+- Integration of RNA-seq and Ribo-seq data  
 - Multi-step filtering for high-confidence ORFs  
-- Integration of **RNA-seq + Ribo-seq**  
-- Translation validation via:
-  - Ribo counts  
-  - 3-nt periodicity  
-- Identification of **novel microproteins**  
+- Translation validation using ribosome profiling  
+- Designed for reproducibility and reuse  
 
 ---
 
 ## Outputs
-- Novel sORF dataset  
+
+- Novel sORF candidates  
 - High-confidence translated ORFs  
-- Microprotein candidates  
+- Microprotein candidates (≤100 aa)  
 - Host gene annotations  
 - Functional enrichment results  
 
 ---
 
-## Conclusion
-This pipeline enables systematic identification and validation of **novel translated sORFs**, revealing previously unannotated coding potential in the human transcriptome. The integration of ribosome profiling and transcriptomics provides strong evidence for **functional microproteins** and their potential biological roles.
+## How to use
+
+1. Prepare RNA-seq and Ribo-seq input data  
+2. Run scripts in sequence (or via wrapper if available)  
+3. Collect outputs from each stage  
+
+> Note: Full wrapper implementation is currently private due to ongoing preprint. This repository provides core scripts and workflow structure.
+
+---
+
+## Summary
+
+This framework enables systematic discovery and validation of novel translated sORFs by combining transcriptomics and ribosome profiling data. It focuses on reproducibility, consistency, and usability across datasets.
